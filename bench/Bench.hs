@@ -1,14 +1,30 @@
 module Main where
 
-import Criterion.Main
+import Criterion.Config (defaultConfig)
+import Criterion.Main (defaultMainWith, bench, nf, parseArgs, defaultOptions)
+import System.Environment (getArgs)
+import Text.PrettyPrint.HughesPJ (render)
 
-fib :: Int -> Int
-fib 0 = 0
-fib 1 = 1
-fib n = fib (n-1) + fib (n-2)
+import Language.C (parseCFile)
+import Language.C.Syntax.AST (CTranslUnit)
+import Language.C.Data (initPos)
+import Language.C.Pretty (pretty)
+import Language.C.System.GCC (newGCC)
 
-main = defaultMain [
-         bench "fib 10" $ nf fib 10
-       , bench "fib 30" $ nf fib 30
-       , bench "fib 35" $ nf fib 35
-       ]
+import qualified Data.ByteString.Char8 as BS
+
+parse :: FilePath -> IO CTranslUnit
+parse fp = do
+  out <- parseCFile (newGCC "gcc") Nothing ["-I."] fp
+  case out of
+    Left e  -> error (show e)
+    Right x -> return x
+
+main = do
+  args <- getArgs
+  (config, files) <- parseArgs defaultConfig defaultOptions args
+  print files
+  tus <- mapM parse files
+  let docs = map pretty tus
+  let bs = zipWith (\f d -> bench f $ nf render d) files docs
+  defaultMainWith config (return ()) bs

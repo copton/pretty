@@ -53,6 +53,7 @@ Benchmark bench-pretty
     build-depends:
         base >= 3 && < 5,
         criterion == 0.6.*,
+        language-c == 0.4.*,
         pretty
 
     hs-source-dirs: bench

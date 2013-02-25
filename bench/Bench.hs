@@ -1,13 +1,16 @@
 module Main where
 
 import Criterion.Config (defaultConfig)
-import Criterion.Main (defaultMainWith, bench, nf, parseArgs, defaultOptions)
+import Criterion.Main (defaultMainWith, bench, nf, parseArgs, defaultOptions, Benchmark)
+import Data.Maybe (catMaybes)
 import System.Environment (getArgs)
-import Text.PrettyPrint.HughesPJ (render)
+import System.FilePath (takeExtension)
+import Text.PrettyPrint.HughesPJ (render, Doc)
+import Text.XML.HaXml.Parse (xmlParse)
+import Text.XML.HaXml.Pretty (document)
 
 import Language.C (parseCFile)
 import Language.C.Syntax.AST (CTranslUnit)
-import Language.C.Data (initPos)
 import Language.C.Pretty (pretty)
 import Language.C.System.GCC (newGCC)
 
@@ -20,11 +23,22 @@ parse fp = do
     Left e  -> error (show e)
     Right x -> return x
 
+createDoc :: FilePath -> IO Doc
+createDoc file = case takeExtension file of
+  ".c" -> do
+    translationUnit <- parse file
+    return (pretty translationUnit)
+  ".xml" -> do
+    contents <- readFile file
+    return $ document $ xmlParse file contents
+  x -> error $ "unsupported file extension: " ++ x
+
+createBench :: FilePath -> Doc -> Benchmark
+createBench file doc = bench file $ nf render doc
+
 main = do
   args <- getArgs
   (config, files) <- parseArgs defaultConfig defaultOptions args
-  print files
-  tus <- mapM parse files
-  let docs = map pretty tus
-  let bs = zipWith (\f d -> bench f $ nf render d) files docs
+  docs <- mapM createDoc files
+  let bs = zipWith createBench files docs
   defaultMainWith config (return ()) bs

@@ -55,6 +55,7 @@ Benchmark bench-pretty
         criterion == 0.6.*,
         language-c == 0.4.*,
         bytestring == 0.9.*,
+		HaXml == 1.23.*,
         pretty
 
     hs-source-dirs: bench

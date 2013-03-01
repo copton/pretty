@@ -20,7 +20,8 @@ module Language.C.Pretty (
 ) where
 import Data.List (partition,nub,isSuffixOf)
 import qualified Data.Set as Set
-import Text.PrettyPrint.HughesPJ
+-- import Text.PrettyPrint.HughesPJ
+import PrettyTestVersion
 import Debug.Trace {- for warnings -}
 
 import Language.C.Data

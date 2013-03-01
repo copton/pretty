@@ -1,20 +1,29 @@
 module Main where
 
+import Control.DeepSeq (($!!), NFData(rnf))
 import Criterion.Config (defaultConfig)
 import Criterion.Main (defaultMainWith, bench, nf, parseArgs, defaultOptions, Benchmark)
 import Data.Maybe (catMaybes)
+import Language.C (parseCFile)
+import Language.C.Pretty (pretty)
+import Language.C.Syntax.AST (CTranslUnit)
+import Language.C.System.GCC (newGCC)
 import System.Environment (getArgs)
 import System.FilePath (takeExtension)
-import Text.PrettyPrint.HughesPJ (render, Doc)
 import Text.XML.HaXml.Parse (xmlParse)
 import Text.XML.HaXml.Pretty (document)
 
-import Language.C (parseCFile)
-import Language.C.Syntax.AST (CTranslUnit)
-import Language.C.Pretty (pretty)
-import Language.C.System.GCC (newGCC)
+import PrettyTestVersion (render, Doc(..))
 
-import qualified Data.ByteString.Char8 as BS
+instance NFData Doc where
+  rnf (Empty           ) = ()
+  rnf (NilAbove d      ) = rnf d
+  rnf (TextBeside _ _ d) = rnf d -- avoiding strict fields
+  rnf (Nest _ d        ) = rnf d -- avoiding strict fields
+  rnf (Union d1 d2     ) = rnf d1 `seq` rnf d2
+  rnf (NoDoc           ) = ()
+  rnf (Beside d1 b d2  ) = rnf d1 `seq` rnf b `seq` rnf d2
+  rnf (Above d1 b d2   ) = rnf d1 `seq` rnf b `seq` rnf d2
 
 parse :: FilePath -> IO CTranslUnit
 parse fp = do
@@ -34,7 +43,7 @@ createDoc file = case takeExtension file of
   x -> error $ "unsupported file extension: " ++ x
 
 createBench :: FilePath -> Doc -> Benchmark
-createBench file doc = bench file $ nf render doc
+createBench file doc = bench file (nf render $!! doc)
 
 main = do
   args <- getArgs

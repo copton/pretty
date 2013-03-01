@@ -46,28 +46,3 @@ Test-Suite test-pretty
         TestStructures
     extensions: CPP, BangPatterns
     include-dirs: src/Text/PrettyPrint
-
-Benchmark bench-pretty
-    type: exitcode-stdio-1.0
-    main-is: Bench.hs
-    build-depends:
-        base >= 3 && < 5,
-        criterion == 0.6.*,
-        language-c == 0.4.*,
-        bytestring == 0.9.*,
-		HaXml == 1.23.*,
-        pretty
-
-    hs-source-dirs: bench
-    ghc-options: -O
-
--- Executable Bench1
---     main-is: Bench1.hs
---     hs-source-dirs: test
---                     src
---     other-modules:
---         Text.PrettyPrint
---         Text.PrettyPrint.HughesPJ
---     extensions: CPP, BangPatterns
---     ghc-options: -O -fwarn-tabs
-

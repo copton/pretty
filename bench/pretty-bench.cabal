@@ -1,28 +1,30 @@
-name:          pretty-bench
-version:       0.1
-synopsis:      benchmarks for the pretty-printing library
-description:   Benchmarking the pretty library involves libraries like criterion
-               which in turn depend on pretty. This package is maintained only
-               in order to break this cycle.
-license:       BSD3
-license-file:  ../LICENSE
-category:      Benchmarking
-maintainer:    Alexander Bernauer <acopton@gmail.com>
-homepage:      http://github.com/copton/pretty
-bug-reports:   http://github.com/copton/pretty/items
-stability:     experimental
-build-type:    Simple
-cabal-version: >= 1.8
+name:               pretty-bench
+version:            0.1
+synopsis:           benchmarks for the pretty-printing library
+description:        Benchmarking the pretty library involves libraries like criterion
+			        which in turn depend on pretty. This package is maintained in
+                    order to break this cycle.
+license:            BSD3
+license-file:       ../LICENSE
+category:           Benchmarking
+maintainer:         Alexander Bernauer <acopton@gmail.com>
+homepage:           http://github.com/copton/pretty
+bug-reports:        http://github.com/copton/pretty/items
+stability:          experimental
+build-type:         Simple
+cabal-version:      >= 1.8
+extra-source-files: README.md
 
 Executable pretty-bench
   main-is:        Bench.hs 
-  hs-source-dirs: ., pretty
+  hs-source-dirs: ., pretty, overwrite
   extensions:     CPP, BangPatterns
-  ghc-options:    -O
+  ghc-options:    -O -rtsopts
   build-depends:
         base       >= 3 && < 5,
         criterion  == 0.6.*,
         language-c == 0.4.*,
+        containers == 0.4.*,
         bytestring == 0.9.*,
         HaXml      == 1.23.*,
         filepath   == 1.3.*
